@@ -1,0 +1,36 @@
+Received: from mx.google.com by mail-relay.example.com with ESMTPS id ax10;
+	Fri, 11 Sep 2026 10:20:11 -0700
+Received: from unknown (unknown [45.132.192.14])
+	by mx-relay-04.forwarder.net with SMTP id qz7f9;
+	Fri, 11 Sep 2026 10:19:40 -0700
+Received: from vps-8823.cheaphost-ovh.net (vps-8823.cheaphost-ovh.net [51.75.64.22])
+	by unknown with ESMTP id 44hh9;
+	Fri, 11 Sep 2026 10:19:22 -0700
+Authentication-Results: mx.google.com;
+	spf=fail (google.com: domain of security@paypa1-secure.com does not designate 51.75.64.22 as permitted sender) smtp.mailfrom=security@paypa1-secure.com;
+	dkim=fail header.d=paypa1-secure.com;
+	dmarc=fail header.from=paypa1-secure.com
+From: PayPal Security <security@paypa1-secure.com>
+Reply-To: recovery-support@paypa1-secure.com
+To: another.victim@example.com
+Subject: Urgent: Your account will be suspended within 24 hours - Verify Now
+Date: Fri, 11 Sep 2026 10:19:20 -0700
+Message-ID: <20260911101920.44hh9@paypa1-secure.com>
+Return-Path: <bounce@paypa1-secure.com>
+X-CampaignID: pp-recovery-sep26
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+
+<html>
+<body>
+<p>Dear Customer,</p>
+<p>We detected unusual activity on your account. Your account will be
+<b>suspended within 24 hours</b> unless you verify your information
+immediately.</p>
+<p>Please click the link below to verify your account and claim your
+account reward:</p>
+<p><a href="http://paypa1-secure-verify.net/login?id=9911">
+http://paypa1-secure-verify.net/login?id=9911</a></p>
+<p>Regards,<br/>PayPal Security Team</p>
+</body>
+</html>

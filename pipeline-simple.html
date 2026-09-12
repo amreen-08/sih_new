@@ -1,0 +1,199 @@
+<title>CatchPhish at a Glance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F7FA;
+    --panel:#FFFFFF;
+    --panel-border:#D7DCE3;
+    --ink:#12161F;
+    --ink-dim:#5B6479;
+    --ink-faint:#8891A3;
+    --accent:#C1442B;
+    --accent-soft:#F7E1DA;
+    --accent-ink:#8A2E1B;
+    --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10141C; --panel:#171C27; --panel-border:#2C3448;
+      --ink:#E8EBF3; --ink-dim:#9AA5BD; --ink-faint:#6B7690;
+      --accent:#E68563; --accent-soft:#3A2620; --accent-ink:#F2A98B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10141C; --panel:#171C27; --panel-border:#2C3448;
+    --ink:#E8EBF3; --ink-dim:#9AA5BD; --ink-faint:#6B7690;
+    --accent:#E68563; --accent-soft:#3A2620; --accent-ink:#F2A98B;
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    padding-inline:20px;
+    padding-block:40px 56px;
+  }
+  .wrap{ max-width:1220px; margin-inline:auto; }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0 0 10px;
+  }
+  h1{
+    font-weight:700;
+    font-size:clamp(26px,4.2vw,40px);
+    line-height:1.12;
+    text-wrap:balance;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  p.lede{
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ink-dim);
+    max-width:70ch;
+    margin:0 0 34px;
+  }
+  figure{ margin:0; }
+  .diagram-frame{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:18px;
+    padding:28px 20px;
+    overflow-x:auto;
+  }
+  svg{ display:block; width:100%; height:auto; min-width:640px; }
+  figcaption{
+    margin-top:18px;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--ink-dim);
+    max-width:80ch;
+  }
+  figcaption strong{ color:var(--ink); font-weight:600; }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">CatchPhish · SIH 2026 · PS 26106</p>
+  <h1>One email in, one risk score out</h1>
+  <p class="lede">
+    Six steps turn a raw <code>.eml</code> file into an explainable fraud score — every
+    step's finding is plain-English, traceable back to the evidence that produced it.
+  </p>
+
+  <figure>
+    <div class="diagram-frame">
+      <svg viewBox="0 0 1460 420" role="img"
+           aria-label="Six-step pipeline: parse and authenticate the email, trace its sending infrastructure, scan attachments, correlate against related campaign emails, compute a weighted fraud score, and produce a Low to Critical risk verdict."
+           font-family="var(--mono)">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- connective arrows -->
+        <g stroke="var(--ink-faint)" stroke-width="2" fill="none">
+          <line x1="240" y1="180" x2="272" y2="180" marker-end="url(#arrow2)"/>
+          <line x1="472" y1="180" x2="504" y2="180" marker-end="url(#arrow2)"/>
+          <line x1="704" y1="180" x2="736" y2="180" marker-end="url(#arrow2)"/>
+          <line x1="936" y1="180" x2="968" y2="180" marker-end="url(#arrow2)"/>
+          <line x1="1168" y1="180" x2="1200" y2="180" marker-end="url(#arrow2)"/>
+        </g>
+
+        <!-- Step 1 -->
+        <g>
+          <rect x="20" y="40" width="220" height="280" rx="16" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.5"/>
+          <circle cx="52" cy="72" r="16" fill="var(--bg)" stroke="var(--ink-faint)"/>
+          <text x="52" y="77" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink-dim)">1</text>
+          <text x="130" y="130" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Parse &amp;</text>
+          <text x="130" y="150" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Authenticate</text>
+          <text x="130" y="185" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">read headers, check</text>
+          <text x="130" y="199" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">SPF / DKIM / DMARC</text>
+          <text x="130" y="290" text-anchor="middle" font-size="9" fill="var(--ink-faint)">is the sender who</text>
+          <text x="130" y="302" text-anchor="middle" font-size="9" fill="var(--ink-faint)">they claim to be?</text>
+        </g>
+
+        <!-- Step 2 -->
+        <g>
+          <rect x="252" y="40" width="220" height="280" rx="16" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.5"/>
+          <circle cx="284" cy="72" r="16" fill="var(--bg)" stroke="var(--ink-faint)"/>
+          <text x="284" y="77" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink-dim)">2</text>
+          <text x="362" y="130" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Trace the</text>
+          <text x="362" y="150" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Origin</text>
+          <text x="362" y="185" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">IP hops → geolocation,</text>
+          <text x="362" y="199" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">network owner, reverse DNS</text>
+          <text x="362" y="290" text-anchor="middle" font-size="9" fill="var(--ink-faint)">where did this really</text>
+          <text x="362" y="302" text-anchor="middle" font-size="9" fill="var(--ink-faint)">come from?</text>
+        </g>
+
+        <!-- Step 3 -->
+        <g>
+          <rect x="484" y="40" width="220" height="280" rx="16" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.5"/>
+          <circle cx="516" cy="72" r="16" fill="var(--bg)" stroke="var(--ink-faint)"/>
+          <text x="516" y="77" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink-dim)">3</text>
+          <text x="594" y="130" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Scan</text>
+          <text x="594" y="150" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Attachments</text>
+          <text x="594" y="185" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">hash, entropy, macros,</text>
+          <text x="594" y="199" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">embedded links — never run</text>
+          <text x="594" y="290" text-anchor="middle" font-size="9" fill="var(--ink-faint)">is the file itself</text>
+          <text x="594" y="302" text-anchor="middle" font-size="9" fill="var(--ink-faint)">dangerous?</text>
+        </g>
+
+        <!-- Step 4 -->
+        <g>
+          <rect x="716" y="40" width="220" height="280" rx="16" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.5"/>
+          <circle cx="748" cy="72" r="16" fill="var(--bg)" stroke="var(--ink-faint)"/>
+          <text x="748" y="77" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink-dim)">4</text>
+          <text x="826" y="130" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Correlate the</text>
+          <text x="826" y="150" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Campaign</text>
+          <text x="826" y="185" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">match against other</text>
+          <text x="826" y="199" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">emails in the same wave</text>
+          <text x="826" y="290" text-anchor="middle" font-size="9" fill="var(--ink-faint)">is this part of a</text>
+          <text x="826" y="302" text-anchor="middle" font-size="9" fill="var(--ink-faint)">bigger attack?</text>
+        </g>
+
+        <!-- Step 5 -->
+        <g>
+          <rect x="948" y="40" width="220" height="280" rx="16" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.5"/>
+          <circle cx="980" cy="72" r="16" fill="var(--bg)" stroke="var(--ink-faint)"/>
+          <text x="980" y="77" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink-dim)">5</text>
+          <text x="1058" y="130" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Score the</text>
+          <text x="1058" y="150" text-anchor="middle" font-size="15.5" font-weight="700" fill="var(--ink)">Risk</text>
+          <text x="1058" y="185" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">weigh all three signals</text>
+          <text x="1058" y="199" text-anchor="middle" font-size="10.5" fill="var(--ink-dim)">into one 0–100 number</text>
+          <text x="1058" y="290" text-anchor="middle" font-size="9" fill="var(--ink-faint)">how do we add it</text>
+          <text x="1058" y="302" text-anchor="middle" font-size="9" fill="var(--ink-faint)">all up, explainably?</text>
+        </g>
+
+        <!-- Step 6 : verdict, accent -->
+        <g>
+          <rect x="1200" y="30" width="240" height="300" rx="18" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+          <circle cx="1234" cy="64" r="17" fill="var(--accent)"/>
+          <text x="1234" y="69" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--panel)">6</text>
+          <text x="1320" y="128" text-anchor="middle" font-size="17" font-weight="700" fill="var(--accent-ink)">Verdict</text>
+          <text x="1320" y="166" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--accent-ink)">Low · Medium ·</text>
+          <text x="1320" y="184" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--accent-ink)">High · Critical</text>
+          <text x="1320" y="216" text-anchor="middle" font-size="10" fill="var(--accent-ink)">+ a full forensic</text>
+          <text x="1320" y="230" text-anchor="middle" font-size="10" fill="var(--accent-ink)">report, every finding</text>
+          <text x="1320" y="244" text-anchor="middle" font-size="10" fill="var(--accent-ink)">traceable to evidence</text>
+          <text x="1320" y="300" text-anchor="middle" font-size="9" fill="var(--ink-faint)">what should the</text>
+          <text x="1320" y="312" text-anchor="middle" font-size="9" fill="var(--ink-faint)">analyst do next?</text>
+        </g>
+      </svg>
+    </div>
+
+    <figcaption>
+      <strong>Every number traces back to a reason.</strong> Nothing in the final score is a
+      black box — the fraud score is a weighted sum of exactly these five checks, and every
+      one of them produces a plain-English reason a judge (or an analyst) can read directly,
+      not just a probability from a model no one can interrogate.
+    </figcaption>
+  </figure>
+</div>

@@ -1,0 +1,376 @@
+<title>CatchPhish Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F7FA;
+    --panel:#FFFFFF;
+    --panel-border:#D7DCE3;
+    --ink:#12161F;
+    --ink-dim:#5B6479;
+    --ink-faint:#8891A3;
+    --accent:#C1442B;
+    --accent-soft:#F7E1DA;
+    --accent-ink:#8A2E1B;
+    --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10141C;
+      --panel:#171C27;
+      --panel-border:#2C3448;
+      --ink:#E8EBF3;
+      --ink-dim:#9AA5BD;
+      --ink-faint:#6B7690;
+      --accent:#E68563;
+      --accent-soft:#3A2620;
+      --accent-ink:#F2A98B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10141C;
+    --panel:#171C27;
+    --panel-border:#2C3448;
+    --ink:#E8EBF3;
+    --ink-dim:#9AA5BD;
+    --ink-faint:#6B7690;
+    --accent:#E68563;
+    --accent-soft:#3A2620;
+    --accent-ink:#F2A98B;
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    padding-inline:20px;
+    padding-block:36px 56px;
+  }
+  .wrap{
+    max-width:1180px;
+    margin-inline:auto;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(26px,4vw,38px);
+    line-height:1.1;
+    text-wrap:balance;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  p.lede{
+    font-size:15.5px;
+    line-height:1.6;
+    color:var(--ink-dim);
+    max-width:66ch;
+    margin:0 0 30px;
+  }
+  p.lede code, figcaption code{
+    font-family:var(--mono);
+    font-size:0.92em;
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    padding:0.05em 0.4em;
+    border-radius:4px;
+  }
+  figure{
+    margin:0;
+  }
+  .diagram-frame{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:16px;
+    padding:18px;
+    overflow-x:auto;
+  }
+  svg{
+    display:block;
+    width:100%;
+    height:auto;
+    min-width:760px;
+  }
+  figcaption{
+    margin-top:16px;
+    font-size:13.5px;
+    line-height:1.65;
+    color:var(--ink-dim);
+    max-width:78ch;
+  }
+  figcaption strong{
+    color:var(--ink);
+    font-weight:600;
+  }
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    margin-top:14px;
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--ink-dim);
+  }
+  .legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+  }
+  .swatch{
+    width:13px;height:13px;border-radius:3px;flex:none;
+  }
+  .swatch.solid{background:var(--panel);border:1.5px solid var(--ink-faint);}
+  .swatch.dashed{background:transparent;border:1.5px dashed var(--ink-faint);}
+  .swatch.risk{background:var(--accent-soft);border:1.5px solid var(--accent);}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">CatchPhish · Problem Statement 26106</p>
+  <h1>How one .eml file becomes a fraud score</h1>
+  <p class="lede">
+    <code>main.py</code>'s <code>run_pipeline()</code> runs every step below in a single
+    sequence, but four of its stages never read each other's output — each gathers its own
+    evidence straight from the file, independently. The diagram lays it out that way on
+    purpose: it's a map of what depends on what, not the literal order lines execute in.
+  </p>
+
+  <figure>
+    <div class="diagram-frame">
+      <svg viewBox="0 0 1420 1320" role="img"
+           aria-label="Flowchart of the CatchPhish email forensics pipeline: an .eml file is parsed and independently analyzed for infrastructure origin, authentication (SPF/DKIM/DMARC), attachment forensics, and optional campaign correlation; the four resulting signals are combined by fraud_score.py into a weighted 0-100 score, which is then rendered by either the CLI report or the Streamlit app."
+           font-family="var(--mono)">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <g stroke="currentColor" fill="none" opacity="0.55" stroke-width="1.5">
+          <!-- N0 -> N1 -->
+          <line x1="700" y1="80" x2="700" y2="116" marker-end="url(#arrow)"/>
+          <!-- N0 -> C1 -->
+          <path d="M 800 80 L 860 210 L 870 256" marker-end="url(#arrow)"/>
+          <!-- N0 -> D0 (dashed) -->
+          <path d="M 900 80 L 1150 100 L 1210 116" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+          <!-- N1 -> A1 -->
+          <path d="M 520 200 L 260 235 L 190 256" marker-end="url(#arrow)"/>
+          <!-- N1 -> B1 -->
+          <path d="M 640 200 L 570 400 L 550 588" marker-end="url(#arrow)"/>
+          <!-- D0 -> D1 (dashed) -->
+          <line x1="1210" y1="200" x2="1210" y2="256" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+          <!-- A1 -> A2 -->
+          <line x1="190" y1="330" x2="190" y2="366" marker-end="url(#arrow)"/>
+          <!-- A2 -> A3 fan -->
+          <path d="M 150 440 L 100 462 L 86 476" marker-end="url(#arrow)"/>
+          <path d="M 190 440 L 190 462 L 190 476" marker-end="url(#arrow)"/>
+          <path d="M 230 440 L 280 462 L 300 476" marker-end="url(#arrow)"/>
+          <!-- A3 -> A4 converge -->
+          <path d="M 86 548 L 140 570 L 175 588" marker-end="url(#arrow)"/>
+          <line x1="190" y1="548" x2="190" y2="588" marker-end="url(#arrow)"/>
+          <path d="M 300 548 L 245 570 L 205 588" marker-end="url(#arrow)"/>
+          <!-- A4 -> B1 (sender_ip) -->
+          <line x1="340" y1="631" x2="376" y2="631" marker-end="url(#arrow)"/>
+          <!-- A4 -> M1 -->
+          <path d="M 300 670 L 400 720 L 460 756" marker-end="url(#arrow)"/>
+          <!-- B1 -> M1 -->
+          <line x1="550" y1="670" x2="550" y2="756" marker-end="url(#arrow)"/>
+          <!-- M1 -> risk tag -->
+          <path d="M 460 830 L 350 850 L 300 866" marker-end="url(#arrow)"/>
+          <!-- M1 -> fraud (geo_score) -->
+          <line x1="550" y1="830" x2="550" y2="956" marker-end="url(#arrow)"/>
+          <!-- C1 -> fraud (attachment_score) -->
+          <line x1="870" y1="410" x2="870" y2="956" marker-end="url(#arrow)"/>
+          <!-- D1 -> fraud (campaign_score) -->
+          <path d="M 1210 410 L 1210 1010 L 944 1010" marker-end="url(#arrow)"/>
+          <!-- fraud -> result -->
+          <line x1="700" y1="1070" x2="700" y2="1116" marker-end="url(#arrow)"/>
+          <!-- result -> report / app -->
+          <path d="M 620 1180 L 500 1205 L 460 1216" marker-end="url(#arrow)"/>
+          <path d="M 780 1180 L 920 1205 L 965 1216" marker-end="url(#arrow)"/>
+        </g>
+
+        <!-- edge labels -->
+        <g fill="var(--ink-faint)" font-size="10.5" font-style="italic">
+          <text x="706" y="104">parse headers</text>
+          <text x="905" y="200">eml_path (attachments)</text>
+          <text x="1010" y="96">eml_path + campaign_dir</text>
+          <text x="266" y="230">Received: headers, in hop order</text>
+          <text x="576" y="330">Auth-Results /</text>
+          <text x="576" y="343">DKIM-Sig headers</text>
+          <text x="120" y="465">public hops only</text>
+          <text x="349" y="622">sender_ip</text>
+          <text x="378" y="712">infra indicators</text>
+          <text x="558" y="712">auth indicators</text>
+          <text x="558" y="900">geo_score</text>
+          <text x="878" y="700">attachment_score</text>
+          <text x="1216" y="700">campaign_score</text>
+          <text x="486" y="1204">--report</text>
+          <text x="895" y="1204">streamlit run app.py</text>
+        </g>
+
+        <!-- N0 input -->
+        <g>
+          <rect x="500" y="30" width="400" height="50" rx="10" fill="var(--panel)" stroke="var(--ink-faint)"/>
+          <text x="700" y="50" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--ink)">.eml file</text>
+          <text x="700" y="66" text-anchor="middle" font-size="10" fill="var(--ink-dim)">raw email — headers + MIME parts</text>
+        </g>
+
+        <!-- N1 email_parser -->
+        <g>
+          <rect x="460" y="120" width="480" height="80" rx="10" fill="var(--panel)" stroke="var(--ink-faint)"/>
+          <text x="700" y="144" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--ink)">email_parser.py</text>
+          <text x="700" y="164" text-anchor="middle" font-size="10" fill="var(--ink-dim)">Subject · From · Return-Path · Message-ID</text>
+          <text x="700" y="180" text-anchor="middle" font-size="10" fill="var(--ink-dim)">Received: ×N · Authentication-Results · DKIM-Signature</text>
+        </g>
+
+        <!-- A1 -->
+        <g>
+          <rect x="40" y="260" width="300" height="70" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="190" y="282" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">ip_extractor.py</text>
+          <text x="190" y="299" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">bracketed IPv4 → parens → bare → IPv6</text>
+          <text x="190" y="313" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">one IP per Received: header</text>
+        </g>
+
+        <!-- A2 -->
+        <g>
+          <rect x="40" y="370" width="300" height="70" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="190" y="392" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">ip_validator.py</text>
+          <text x="190" y="409" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">public / private / loopback / reserved</text>
+          <text x="190" y="423" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">only public IPs are traceable</text>
+        </g>
+
+        <!-- A3 trio -->
+        <g>
+          <rect x="40" y="476" width="93" height="72" rx="7" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="86" y="500" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">geolocation</text>
+          <text x="86" y="513" text-anchor="middle" font-size="9" fill="var(--ink-dim)">.py</text>
+          <text x="86" y="530" text-anchor="middle" font-size="8.5" fill="var(--ink-faint)">ip-api.com</text>
+
+          <rect x="143" y="476" width="93" height="72" rx="7" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="190" y="500" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">asn_lookup</text>
+          <text x="190" y="513" text-anchor="middle" font-size="9" fill="var(--ink-dim)">.py</text>
+          <text x="190" y="530" text-anchor="middle" font-size="8.5" fill="var(--ink-faint)">RDAP owner</text>
+
+          <rect x="246" y="476" width="94" height="72" rx="7" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="293" y="500" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">dns_lookup</text>
+          <text x="293" y="513" text-anchor="middle" font-size="9" fill="var(--ink-dim)">.py</text>
+          <text x="293" y="530" text-anchor="middle" font-size="8.5" fill="var(--ink-faint)">reverse DNS</text>
+        </g>
+
+        <!-- A4 infrastructure -->
+        <g>
+          <rect x="40" y="592" width="300" height="78" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="190" y="615" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">infrastructure.py</text>
+          <text x="190" y="633" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">cloud host? DNS mismatch?</text>
+          <text x="190" y="647" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">3+ countries? → indicators + sender_ip</text>
+        </g>
+
+        <!-- B1 auth -->
+        <g>
+          <rect x="380" y="592" width="340" height="78" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="550" y="615" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">auth_checker.py</text>
+          <text x="550" y="633" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">Authentication-Results header preferred —</text>
+          <text x="550" y="647" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">else live SPF (DNS) / DKIM (key) / DMARC (align)</text>
+        </g>
+
+        <!-- C1 attachments -->
+        <g>
+          <rect x="720" y="260" width="300" height="150" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="870" y="284" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">attachment_analyzer.py</text>
+          <text x="870" y="304" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">static only — nothing is ever executed</text>
+          <text x="870" y="326" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">hash + entropy → signature check</text>
+          <text x="870" y="342" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">→ macro scan → embedded IOC extraction</text>
+          <text x="870" y="368" text-anchor="middle" font-size="8.5" fill="var(--ink-faint)">(5 sub-modules, coordinated here)</text>
+        </g>
+
+        <!-- D0 campaign input -->
+        <g>
+          <rect x="1060" y="120" width="300" height="80" rx="10" stroke-dasharray="6 4" fill="var(--panel)" stroke="var(--ink-faint)"/>
+          <text x="1210" y="146" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">campaign_dir/</text>
+          <text x="1210" y="164" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">--campaign-dir folder of</text>
+          <text x="1210" y="178" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">related .eml files (optional)</text>
+        </g>
+
+        <!-- D1 campaign correlation -->
+        <g>
+          <rect x="1060" y="260" width="300" height="150" rx="8" stroke-dasharray="6 4" fill="var(--panel)" stroke="var(--ink-faint)"/>
+          <text x="1210" y="284" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">campaign_correlation.py</text>
+          <text x="1210" y="304" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">re-parses every file itself —</text>
+          <text x="1210" y="322" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">doesn't reuse email_parser.py</text>
+          <text x="1210" y="344" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">anchor match ∨ cluster match</text>
+          <text x="1210" y="360" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">(union-find) — takes the max</text>
+          <text x="1210" y="384" text-anchor="middle" font-size="8.5" fill="var(--ink-faint)">silent without --campaign-dir</text>
+        </g>
+
+        <!-- M1 combined indicators -->
+        <g>
+          <rect x="380" y="760" width="340" height="70" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="550" y="784" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">combined indicators</text>
+          <text x="550" y="802" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">infra + auth signals, concatenated</text>
+          <text x="550" y="816" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">into one list</text>
+        </g>
+
+        <!-- risk tag -->
+        <g>
+          <rect x="180" y="866" width="200" height="58" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="280" y="888" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent-ink)">risk_level</text>
+          <text x="280" y="904" text-anchor="middle" font-size="9" fill="var(--accent-ink)">count: 0→low 1–2→med 3+→high</text>
+          <text x="280" y="918" text-anchor="middle" font-size="8" fill="var(--ink-faint)">(also carried into the result JSON)</text>
+        </g>
+
+        <!-- fraud_score.py -->
+        <g>
+          <rect x="460" y="960" width="480" height="110" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="700" y="990" text-anchor="middle" font-size="15" font-weight="700" fill="var(--accent-ink)">fraud_score.py</text>
+          <text x="700" y="1012" text-anchor="middle" font-size="10.5" fill="var(--accent-ink)">geo × 0.25  +  attachment × 0.35  +  campaign × 0.40</text>
+          <text x="700" y="1032" text-anchor="middle" font-size="10.5" fill="var(--accent-ink)">→ fraud_score (0–100) + fraud_classification</text>
+          <text x="700" y="1050" text-anchor="middle" font-size="9" fill="var(--ink-faint)">Low / Medium / High / Critical Risk</text>
+        </g>
+
+        <!-- result dict -->
+        <g>
+          <rect x="520" y="1116" width="360" height="60" rx="10" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="700" y="1140" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">result dict (JSON)</text>
+          <text x="700" y="1158" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">everything above, in one shared shape</text>
+        </g>
+
+        <!-- report.py / app.py -->
+        <g>
+          <rect x="300" y="1216" width="300" height="70" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="450" y="1240" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">report.py</text>
+          <text x="450" y="1258" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">--report → colored CLI text</text>
+
+          <rect x="820" y="1216" width="300" height="70" rx="8" fill="var(--panel)" stroke="var(--panel-border)"/>
+          <text x="970" y="1240" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">app.py</text>
+          <text x="970" y="1258" text-anchor="middle" font-size="9.5" fill="var(--ink-dim)">Streamlit UI, same result as widgets</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch solid"></span>always runs</span>
+      <span><span class="swatch dashed"></span>optional — only with <code style="font-family:var(--mono);font-size:0.95em;">--campaign-dir</code></span>
+      <span><span class="swatch risk"></span>where the risk verdict is produced</span>
+    </div>
+
+    <figcaption>
+      <strong>Four independent evidence-gathering stages, one weighted score.</strong>
+      Infrastructure tracing, authentication checking, attachment forensics, and campaign
+      correlation each read straight from the <code>.eml</code> file — none of them wait on
+      another's output, except <code>auth_checker.py</code>, which needs the <code>sender_ip</code>
+      that <code>infrastructure.py</code> resolves first for its live SPF fallback. The code
+      itself runs these one after another in a single process, not on separate threads — the
+      parallel lanes above describe <em>data dependency</em>, which is what actually matters for
+      understanding the design, not execution order.
+    </figcaption>
+  </figure>
+</div>

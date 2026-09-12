@@ -1,0 +1,51 @@
+Received: from mx.google.com by mail-relay.example.com with ESMTPS id ax9;
+	Fri, 11 Sep 2026 08:15:32 -0700
+Received: from unknown (unknown [45.132.192.14])
+	by mx-relay-04.forwarder.net with SMTP id qz7f2;
+	Fri, 11 Sep 2026 08:14:58 -0700
+Received: from vps-8823.cheaphost-ovh.net (vps-8823.cheaphost-ovh.net [51.75.64.22])
+	by unknown with ESMTP id 44hh1;
+	Fri, 11 Sep 2026 08:14:41 -0700
+Authentication-Results: mx.google.com;
+	spf=fail (google.com: domain of security@paypa1-secure.com does not designate 51.75.64.22 as permitted sender) smtp.mailfrom=security@paypa1-secure.com;
+	dkim=fail header.d=paypa1-secure.com;
+	dmarc=fail header.from=paypa1-secure.com
+From: PayPal Security <security@paypa1-secure.com>
+Reply-To: recovery-support@paypa1-secure.com
+To: victim@example.com
+Subject: Urgent: Your account will be suspended within 24 hours - Verify Now
+Date: Fri, 11 Sep 2026 08:14:40 -0700
+Message-ID: <20260911081440.44hh1@paypa1-secure.com>
+Return-Path: <bounce@paypa1-secure.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY_XYZ"
+
+--BOUNDARY_XYZ
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<body>
+<p>Dear Customer,</p>
+<p>We detected unusual activity on your account. Your account will be
+<b>suspended within 24 hours</b> unless you verify your information
+immediately.</p>
+<p>Please click the link below to verify your account and claim your
+account reward:</p>
+<p><a href="http://paypa1-secure-verify.net/login?id=8823">
+http://paypa1-secure-verify.net/login?id=8823</a></p>
+<p>Alternatively, open the attached statement for details.</p>
+<p>Regards,<br/>PayPal Security Team</p>
+</body>
+</html>
+
+--BOUNDARY_XYZ
+Content-Type: application/octet-stream; name="Account_Statement.pdf.exe"
+Content-Disposition: attachment; filename="Account_Statement.pdf.exe"
+Content-Transfer-Encoding: base64
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAgAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBy
+dW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAAA=
+
+--BOUNDARY_XYZ--

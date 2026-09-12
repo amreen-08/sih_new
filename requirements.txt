@@ -1,0 +1,14 @@
+# Core (required)
+requests>=2.31         # geolocation.py - ip-api.com lookups
+streamlit>=1.32        # app.py - the web UI (run: streamlit run app.py)
+
+# Recommended (the pipeline degrades gracefully without these, but with
+# reduced accuracy - see the "Optional dependencies" section in README.md)
+dnspython>=2.4         # auth_checker.py - live SPF/DKIM/DMARC DNS checks
+ipwhois>=1.2           # asn_lookup.py - RDAP ASN/ownership lookups (falls back to ip-api data if missing)
+python-magic>=0.4.27   # attachment_metadata.py - accurate MIME detection via libmagic (falls back to the mimetypes stdlib module if missing)
+oletools>=0.60         # attachment_macro_analyzer.py - static VBA/macro analysis (skipped gracefully if missing)
+
+# Note: python-magic also needs the libmagic system library.
+#   Debian/Ubuntu: sudo apt-get install libmagic1
+#   macOS:         brew install libmagic

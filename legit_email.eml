@@ -1,0 +1,26 @@
+Received: from mx.google.com by mail-relay.example.com with ESMTPS id bx2;
+	Fri, 11 Sep 2026 09:02:10 -0700
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com [209.85.220.41])
+	by mx.google.com with SMTPS id ff3d1;
+	Fri, 11 Sep 2026 09:01:55 -0700
+Authentication-Results: mx.google.com;
+	spf=pass (google.com: domain of notifications@github.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=notifications@github.com;
+	dkim=pass header.d=github.com;
+	dmarc=pass header.from=github.com
+From: GitHub <notifications@github.com>
+To: victim@example.com
+Subject: [your-org/project] Weekly digest
+Date: Fri, 11 Sep 2026 09:01:50 -0700
+Message-ID: <20260911090150.ff3d1@github.com>
+Return-Path: <bounce@github.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Here is your weekly activity digest for your-org/project.
+
+3 pull requests merged, 2 issues opened.
+
+View the full digest: https://github.com/your-org/project
+
+Thanks,
+The GitHub Team
